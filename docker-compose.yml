@@ -1,0 +1,45 @@
+version: "2"
+
+services:
+  web:
+    image: 'gitlab/gitlab-ce:10.3.3-ce.0'
+#    restart: always
+    hostname: 'gitlab.docker.localhost'
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://gitlab.docker.localhost'
+    expose:
+      - "80"
+      - "443"
+      - "22"
+    volumes:
+      - /srv/gitlab/config:/etc/gitlab
+      - /srv/gitlab/logs:/var/log/gitlab
+      - /srv/gitlab/data:/var/opt/gitlab
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_webgateway"
+      - "traefik.port=80"
+      - "traefik.backend=docker-gitlab"
+      - "traefik.frontend.rule=Host:gitlab.docker.localhost"
+    networks:
+      - traefik_webgateway
+      - default
+
+  mail:
+    image: djfarrelly/maildev
+    expose:
+      - "80"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_webgateway"
+      - "traefik.port=80"
+      - "traefik.backend=docker-gitlab-mail"
+      - "traefik.frontend.rule=Host:mail.gitlab.docker.localhost"
+    networks:
+      - traefik_webgateway
+      - default
+
+networks:
+  traefik_webgateway:
+    external: true
