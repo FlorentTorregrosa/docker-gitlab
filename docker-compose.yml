@@ -8,10 +8,6 @@ services:
     environment:
       GITLAB_OMNIBUS_CONFIG: |
         external_url 'http://gitlab.docker.localhost'
-    expose:
-      - "80"
-      - "443"
-      - "22"
     ports:
       - "22:22"
     volumes:
@@ -20,28 +16,12 @@ services:
       - /srv/gitlab/data:/var/opt/gitlab
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=traefik_webgateway"
-      - "traefik.port=80"
-      - "traefik.backend=docker-gitlab"
       - "traefik.frontend.rule=Host:gitlab.docker.localhost"
-    networks:
-      - traefik_webgateway
-      - default
+      - "traefik.port=80"
 
   mail:
     image: djfarrelly/maildev
-    expose:
-      - "80"
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=traefik_webgateway"
-      - "traefik.port=80"
-      - "traefik.backend=docker-gitlab-mail"
       - "traefik.frontend.rule=Host:mail.gitlab.docker.localhost"
-    networks:
-      - traefik_webgateway
-      - default
-
-networks:
-  traefik_webgateway:
-    external: true
+      - "traefik.port=80"
